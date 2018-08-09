@@ -47,6 +47,13 @@ def unpack_drawings(filename):
             except struct.error:
                 break
 
+categories = []
+fd = file( "categories.txt", "r" )
+ 
+for line in fd.readlines():
+    categories.append(line.split('\n')[0])
+print(len(categories))
+
 drawings = []
 for drawing in unpack_drawings('chunk.0000.bin'):
     # do something with the drawing
@@ -55,5 +62,16 @@ for drawing in unpack_drawings('chunk.0000.bin'):
 for drawing in unpack_drawings('chunk.0001.bin'):
     # do something with the drawing
     drawings.append(drawing)
-print(drawings)
+# print(drawings)
 print(len(drawings))
+
+final = []
+for i in range(345):
+    item = {
+        'key_id': drawings[i]['key_id'],
+        'image': drawings[i]['image'],
+        'word': categories[i]
+    }
+    final.append(item)
+print(final)
+

@@ -14,6 +14,8 @@
 
 import struct
 from struct import unpack
+import json
+import requests
 
 
 def unpack_drawing(file_handle):
@@ -48,7 +50,7 @@ def unpack_drawings(filename):
                 break
 
 categories = []
-fd = file( "categories.txt", "r" )
+fd = file("categories.txt", "r")
  
 for line in fd.readlines():
     categories.append(line.split('\n')[0])
@@ -69,9 +71,47 @@ final = []
 for i in range(345):
     item = {
         'key_id': drawings[i]['key_id'],
-        'image': drawings[i]['image'],
+        'drawing': drawings[i]['image'],
         'word': categories[i]
     }
     final.append(item)
-print(final)
+
+config = []
+fd = file("config.txt", "r")
+for line in fd.readlines():
+    config.append(line.split('\n')[0])
+client_id = config[0]
+client_secret = config[1]
+
+payload = {'client_id': client_id, 'client_secret': client_secret}
+response = requests.post('https://cloud.minapp.com/api/oauth2/hydrogen/openapi/authorize/', json=payload)
+code = response.json()['code']
+print(code)
+payload = {
+    'client_id': client_id,
+    'client_secret': client_secret,
+    'grant_type': 'authorization_code',
+    'code': code,
+}
+print(payload)
+response = requests.post('https://cloud.minapp.com/api/oauth2/access_token/', data=payload)
+print(response.text)
+
+token = response.json()['access_token']
+auth = 'Bearer ' + token
+headers = {'Authorization': auth}
+for i in range(345):
+    payload = {
+    'key_id': final[i]['key_id'],
+    'data': json.dumps(final[i]['drawing']),
+    'word': final[i]['word']
+    }
+    response = requests.post('https://cloud.minapp.com/oserve/v1/table/47520/record/', json=payload, headers=headers)
+    print(response.text)
+
+print('over')
+
+
+
+
 

@@ -78,30 +78,15 @@ for line in fd.readlines():
 client_id = config[0]
 client_secret = config[1]
 
-payload = {'client_id': client_id, 'client_secret': client_secret}
-response = requests.post('https://cloud.minapp.com/api/oauth2/hydrogen/openapi/authorize/', json=payload)
-code = response.json()['code']
-print(code)
-payload = {
-    'client_id': client_id,
-    'client_secret': client_secret,
-    'grant_type': 'authorization_code',
-    'code': code,
-}
-print(payload)
-response = requests.post('https://cloud.minapp.com/api/oauth2/access_token/', data=payload)
-print(response.text)
-
-token = response.json()['access_token']
-auth = 'Bearer ' + token
-headers = {'Authorization': auth}
+headers = {'X-LC-Id': client_id, 'X-LC-Key': client_secret}
+print(headers);
 for i in range(345):
     payload = {
     'key_id': final[i]['key_id'],
-    'data': json.dumps(final[i]['drawing']),
+    'data': final[i]['drawing'],
     'word': final[i]['word']
     }
-    response = requests.post('https://cloud.minapp.com/oserve/v1/table/47547/record/', json=payload, headers=headers)
+    response = requests.post('https://x6vk26sv.api.lncld.net/1.1/classes/drawing', json=payload, headers=headers)
     print(response.text)
 
 print('over')
